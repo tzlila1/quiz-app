@@ -8,12 +8,7 @@
     font-size: 18px;
     margin-bottom: 10px;
   }
-  
-  .good-job {
-    color: green;
+
+  .text-icon{
+    margin: 2px;
   }
-  
-  .can-do-better {
-    color: red;
-  }
-  

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuiz } from '../../context/QuizContext';
 import {TIME_PER_QUESTION , TIME_FOR_HINT} from '../../const'
+import { FaLightbulb } from "react-icons/fa";
 import  './Quiz.css'
 
 const Quiz: React.FC = () => {
@@ -66,11 +67,15 @@ const Quiz: React.FC = () => {
     if(correctOption === option){
       dispatch({type:"CORRECT_OPTION_SELECTED"});
     }
+    dispatch({type:"OPTION_SELECTED", time:(TIME_PER_QUESTION - timer) });
+
+
   }
 
   const renderAnswers = () => {
+    
     return currentQuestion.choices.map((option, index) => (
-    <div className='options-container'>
+    <div className='option-container'>
       <input
         value={option}
         name='option'
@@ -92,16 +97,18 @@ const Quiz: React.FC = () => {
       </div>
 
       <div className='question'>
-        ({currentQuestionIndex + 1}) {questions[currentQuestionIndex].question}
+        {currentQuestionIndex + 1}. {questions[currentQuestionIndex].question}
       </div>
-      <div>
+
+      <div className='options-container'>
         {renderAnswers()}
       </div>
 
       {showHint &&
        <div className='hint'>
-         {questions[currentQuestionIndex].hint} 
+        <FaLightbulb />  {questions[currentQuestionIndex].hint} 
        </div> }
+
     </div>
   );
 };

@@ -17,16 +17,17 @@ interface QuizState {
   questions: Question[];
   currentQuestionIndex: number;
   startQuiz:boolean;
-  timer: number;
+  totalTime: number;
   userScore: number;
   finishQuiz: boolean;
 }
 
 type QuizAction =
   | { type: 'FETCH_QUESTIONS_SUCCESS'; questions: Question[] }
-  | { type: 'FETCH_QUESTIONS_FAILURE'; error: string }
+  | { type: 'FETCH_QUESTIONS_FAILURE'; error: string } // handle the error , need to add functionaluty 
   | { type: 'MOVE_TO_NEXT_QUESTION' }
   | { type: 'CORRECT_OPTION_SELECTED' }
+  | { type: 'OPTION_SELECTED'; time: number }
   | { type: 'FINISH_QUIZ' };
 
   
@@ -35,7 +36,7 @@ const initialState: QuizState = {
   questions: [],
   currentQuestionIndex: 0,
   startQuiz: false,
-  timer: TIME_PER_QUESTION,
+  totalTime: 0,
   userScore: 0,
   finishQuiz: false
   
@@ -67,6 +68,9 @@ const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
         return { ...state, userScore:newUserScore};
     case 'FINISH_QUIZ':
         return { ...state, finishQuiz:true};
+    case 'OPTION_SELECTED':
+      const newTotalTime = state.totalTime + 1
+      return { ...state, totalTime:newTotalTime};
     
     default:
       return state;
