@@ -6,8 +6,47 @@ import Quiz from './components/quiz/Quiz'
 import Result from './components/result/Result'
 import Header from './components/header/Header'
 import questions from './mock'
+import {Actions, QuizStatus} from './const'
+import styled from 'styled-components';
 
-import './App.css'
+// Styled components
+const AppWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
+const AppContainer = styled.div`
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  width: 80vh;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+`;
+
+const ButtonContainer = styled.div`
+  text-align: center;
+  margin-top: 20px;
+`;
+
+const StartButton = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 400px;
+
+  &:hover {
+    background-color: #2980b9;
+  }
+`;
 
 const App: React.FC = () => {
   const { state, dispatch } = useQuiz();
@@ -21,7 +60,7 @@ const App: React.FC = () => {
       hint: string;
     }
   
-    function getRandomQuizQuestions(questions: QuizQuestion[], numQuestions: number): QuizQuestion[] {
+    const getRandomQuizQuestions = (questions: QuizQuestion[], numQuestions: number): QuizQuestion[] => {
       const shuffledQuestions = questions.slice().sort(() => Math.random() - 0.5);
       return shuffledQuestions.slice(0, numQuestions);
     }
@@ -36,7 +75,7 @@ const App: React.FC = () => {
           //choose 5 randomly 
         
           //dispatch action with the question . 
-          dispatch({ type: 'FETCH_QUESTIONS_SUCCESS',  questions: data.results });
+          dispatch({ type: Actions.fetchSuccess,  questions: data.results });
 
           //setQuestions(data);
         } catch (error) {
@@ -46,24 +85,24 @@ const App: React.FC = () => {
       };
       //fetchData()
       const randomQuestions = getRandomQuizQuestions( questions , 5)
-      dispatch({ type: 'FETCH_QUESTIONS_SUCCESS',  questions: randomQuestions });
+      dispatch({ type: Actions.fetchSuccess,  questions: randomQuestions });
 
     };
 
     return (
-      <div className="App">
-        <div className='app-container'>
+      <AppWrapper>
+        <AppContainer>
           <Header/>
-          {!state.startQuiz && !state.finishQuiz &&
-          <div className="button-container">
-            <button className='button' onClick={startQuiz} >
+          { state.quizStatus === QuizStatus.initial &&
+          <ButtonContainer>
+            <StartButton onClick={startQuiz} >
                     Start Quiz
-            </button>       
-          </div>}
-          {state.startQuiz && !state.finishQuiz && <Quiz/>}
-          {state.finishQuiz && <Result/>}
-        </div>
-      </div>
+            </StartButton>       
+          </ButtonContainer>}
+          {state.quizStatus === QuizStatus.started  && <Quiz/>}
+          {state.quizStatus === QuizStatus.finished  && <Result/>}
+        </AppContainer>
+      </AppWrapper>
     );
   };
   

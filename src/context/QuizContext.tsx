@@ -1,7 +1,7 @@
 // QuizContext.tsx
 
 import React, { createContext, useReducer, useContext, useState } from 'react';
-import {TIME_PER_QUESTION} from '../const'
+import { Actions, QuizStatus} from '../const'
 
    interface Question {
       question_id: number;
@@ -16,29 +16,28 @@ import {TIME_PER_QUESTION} from '../const'
 interface QuizState {
   questions: Question[];
   currentQuestionIndex: number;
-  startQuiz:boolean;
   totalTime: number;
   userScore: number;
-  finishQuiz: boolean;
+  quizStatus: string ;
+
 }
 
 type QuizAction =
-  | { type: 'FETCH_QUESTIONS_SUCCESS'; questions: Question[] }
-  | { type: 'FETCH_QUESTIONS_FAILURE'; error: string } // handle the error , need to add functionaluty 
-  | { type: 'MOVE_TO_NEXT_QUESTION' }
-  | { type: 'CORRECT_OPTION_SELECTED' }
-  | { type: 'OPTION_SELECTED'; time: number }
-  | { type: 'FINISH_QUIZ' };
+  | { type: Actions.fetchSuccess; questions: Question[] }
+  | { type: Actions.fecthFailure; error: string } // handle the error , need to add functionaluty 
+  | { type: Actions.moveToNextQuestion }
+  | { type: Actions.correctOptionSelected}
+  | { type: Actions.optionSelected; time: number }
+  | { type: Actions.finishQuiz };
 
   
 
 const initialState: QuizState = {
   questions: [],
   currentQuestionIndex: 0,
-  startQuiz: false,
   totalTime: 0,
   userScore: 0,
-  finishQuiz: false
+  quizStatus: QuizStatus.initial
   
 };
 
@@ -52,24 +51,24 @@ const QuizContext = createContext<{
 
 const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
   switch (action.type) {
-    case 'FETCH_QUESTIONS_SUCCESS':
+    case Actions.fetchSuccess:
         console.log(action)
-      return { ...state, questions: action.questions, startQuiz: true };
+      return { ...state, questions: action.questions, quizStatus: QuizStatus.started };
 
-    case 'MOVE_TO_NEXT_QUESTION':
+    case Actions.moveToNextQuestion:
         const newIndex = state.currentQuestionIndex + 1
         if (newIndex === state.questions.length){
            // restart timer 
            return state
         }
       return { ...state, currentQuestionIndex: newIndex };
-    case 'CORRECT_OPTION_SELECTED':
+    case Actions.correctOptionSelected:
         const newUserScore = state.userScore + 1
         return { ...state, userScore:newUserScore};
-    case 'FINISH_QUIZ':
-        return { ...state, finishQuiz:true};
-    case 'OPTION_SELECTED':
-      const newTotalTime = state.totalTime + 1
+    case Actions.finishQuiz:
+        return { ...state, quizStatus: QuizStatus.finished};
+    case Actions.optionSelected:
+      const newTotalTime = state.totalTime 
       return { ...state, totalTime:newTotalTime};
     
     default:

@@ -1,8 +1,81 @@
 import React, { useEffect, useState } from 'react';
 import { useQuiz } from '../../context/QuizContext';
-import {TIME_PER_QUESTION , TIME_FOR_HINT} from '../../const'
+import {TIME_PER_QUESTION , TIME_FOR_HINT, Actions} from '../../const'
 import { FaLightbulb } from "react-icons/fa";
 import  './Quiz.css'
+import styled from 'styled-components';
+import { InputHTMLAttributes } from 'react';
+
+
+// Styled components
+const QuizContainer = styled.div`
+  border-radius: 8px;
+  padding: 10px 20px;
+`;
+
+const TimerContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 15px;
+`;
+
+const Timer = styled.div`
+  font-size: 30px;
+  font-weight: bold;
+  width: 60px;
+  height: 60px;
+  border: 3px solid #3498db;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  color: #3498db;
+`;
+
+const Question = styled.div`
+  font-size: 18px;
+  margin-bottom: 10px;
+`;
+
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+interface OptionProps extends InputHTMLAttributes<HTMLInputElement> {
+  isSelected?: boolean;
+  isShowCorrectOption?: boolean
+}
+
+const Option = styled.input<OptionProps>`
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  background-color:${(props) => (props.isSelected?   '  #e0e0e0' : '' )};
+  background-color:${(props) => (props.isShowCorrectOption?   '  #e7f8eb' : '' )};
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+
+  &:disabled {
+    pointer-events: none;
+    opacity: 1;
+    color: #333;
+  }
+`;
+
+const Hint = styled.div`
+  padding-top: 10px;
+  color: red;
+  font-size: 18px;
+`;
+
 
 const Quiz: React.FC = () => {
   const { state, dispatch } = useQuiz();
@@ -34,12 +107,13 @@ const Quiz: React.FC = () => {
 
   
   useEffect(() => {
+
     // show hint after 10 seconds
-    if (timer === TIME_FOR_HINT){
+    if (timer <= TIME_FOR_HINT){
       setShowHint(true)
     }
     // Handle timer reaching 0
-    if (timer === 0) {
+    if (timer <= 0) {
      //time is up - show the correct option 
       setShowCorrectOption(true)
      // Move to the next question 1 second after answer is displayed
@@ -47,17 +121,15 @@ const Quiz: React.FC = () => {
       // clear Interval
       clearInterval(intervalID)
     }
-
- 
   }, [timer]);
 
   const moveToNextQuestion = () => {
     // Move to the next question and reset the timer
-    dispatch({ type: 'MOVE_TO_NEXT_QUESTION' });
+    dispatch({ type: Actions.moveToNextQuestion });
     setTimer(TIME_PER_QUESTION)
     // check if quiz finish
     if(currentQuestionIndex === questions.length - 1) {
-       dispatch({ type: 'FINISH_QUIZ' });
+       dispatch({ type: Actions.finishQuiz });
        }
 
   };
@@ -65,9 +137,9 @@ const Quiz: React.FC = () => {
   const onOptionSelected = (option: string) => {
     setOptionSelected(option)
     if(correctOption === option){
-      dispatch({type:"CORRECT_OPTION_SELECTED"});
+      dispatch({type: Actions.correctOptionSelected});
     }
-    dispatch({type:"OPTION_SELECTED", time:(TIME_PER_QUESTION - timer) });
+    dispatch({type: Actions.optionSelected, time:(TIME_PER_QUESTION - timer) });
 
 
   }
@@ -76,40 +148,45 @@ const Quiz: React.FC = () => {
     
     return currentQuestion.choices.map((option, index) => (
     <div className='option-container'>
-      <input
+      <Option
+        isSelected={optionSelected === option ? true : false }
+        isShowCorrectOption ={showCorrectOption && correctOption === option }
         value={option}
         name='option'
-        className={`option ${ optionSelected === option  ? 'selected-option' : ''}  ${ showCorrectOption && correctOption === option  ? 'correct-option' : ''}`   }
+        className={`option   ${ showCorrectOption && correctOption === option  ? 'correct-option' : ''}`   }
         key={index} 
         disabled= {!!optionSelected || showCorrectOption} 
-        onClick={()=> onOptionSelected(option)}/>
+        onClick={()=> onOptionSelected(option)}
+        />
+
+
     </div>
     ));
   };
   
 
   return (
-    <div className='quiz-container'>
-      <div className="timer-container">
-        <div className="timer">
+    <QuizContainer>
+      <TimerContainer>
+        <Timer>
           {timer}
-        </div>
-      </div>
+        </Timer>
+      </TimerContainer>
 
-      <div className='question'>
+      <Question>
         {currentQuestionIndex + 1}. {questions[currentQuestionIndex].question}
-      </div>
+      </Question>
 
-      <div className='options-container'>
+      <OptionsContainer>
         {renderAnswers()}
-      </div>
+      </OptionsContainer>
 
       {showHint &&
-       <div className='hint'>
+       <Hint>
         <FaLightbulb />  {questions[currentQuestionIndex].hint} 
-       </div> }
+       </Hint> }
 
-    </div>
+    </QuizContainer>
   );
 };
 
