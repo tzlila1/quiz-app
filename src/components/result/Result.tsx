@@ -14,7 +14,7 @@ return(
             <div className="score-container">
               <b>{userScore}</b> of {questions.length} questions answered correctly, 
 
-              in <b>{totalTime}</b> seconds
+              in <b>{totalTime/1000}</b> seconds
             </div>
             <div className="message-container">
               {userScore > questions.length / 2 ? (

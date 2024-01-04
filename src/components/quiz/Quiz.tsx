@@ -87,12 +87,15 @@ const Quiz: React.FC = () => {
   const [showHint, setShowHint] = useState<boolean>(false)
   const currentQuestion = questions[currentQuestionIndex];
   const correctOption = currentQuestion.choices[currentQuestion.answer_index];
+  const [startQuizTime, setStartQuizTime] =useState<number>(0)
 
   useEffect(() => {
       const interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1 );
       }, 1000);
 
+      // set time to now 
+      setStartQuizTime(Date.now())
       // clear interval and initialize state params
       setIntervalID(interval)
       setOptionSelected('')
@@ -135,11 +138,15 @@ const Quiz: React.FC = () => {
   };
 
   const onOptionSelected = (option: string) => {
+    const timeToAnswer = Date.now() - (startQuizTime)
+    console.log(timeToAnswer)
     setOptionSelected(option)
     if(correctOption === option){
-      dispatch({type: Actions.correctOptionSelected});
+      dispatch({type: Actions.correctOptionSelected, time: timeToAnswer});
+      
+
     }
-    dispatch({type: Actions.optionSelected, time:(TIME_PER_QUESTION - timer) });
+   // dispatch({type: Actions.optionSelected, time: timeToAnswer});
 
 
   }

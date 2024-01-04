@@ -26,7 +26,7 @@ type QuizAction =
   | { type: Actions.fetchSuccess; questions: Question[] }
   | { type: Actions.fecthFailure; error: string } // handle the error , need to add functionaluty 
   | { type: Actions.moveToNextQuestion }
-  | { type: Actions.correctOptionSelected}
+  | { type: Actions.correctOptionSelected, time: number }
   | { type: Actions.optionSelected; time: number }
   | { type: Actions.finishQuiz };
 
@@ -64,12 +64,13 @@ const quizReducer = (state: QuizState, action: QuizAction): QuizState => {
       return { ...state, currentQuestionIndex: newIndex };
     case Actions.correctOptionSelected:
         const newUserScore = state.userScore + 1
-        return { ...state, userScore:newUserScore};
+        const newTotalTime = state.totalTime + action.time
+        return { ...state, userScore:newUserScore, totalTime:newTotalTime};
     case Actions.finishQuiz:
         return { ...state, quizStatus: QuizStatus.finished};
     case Actions.optionSelected:
-      const newTotalTime = state.totalTime 
-      return { ...state, totalTime:newTotalTime};
+      const newTotalTime1 = state.totalTime + action.time
+      return { ...state, totalTime:newTotalTime1};
     
     default:
       return state;
